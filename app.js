@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import fileUpload from "express-fileupload";
 import { dbConnect } from './database/dbConnect.js';
 import messageRouter from './router/messageRouter.js';
+import {errorMiddleware} from "./middlewares/errorMiddleware.js";
 
 
 const app = express();
@@ -39,6 +40,9 @@ app.use("/api/v1/message",messageRouter);
 
 //connect to the database
 dbConnect();
+
+//now we will use the error middleware
+app.use(errorMiddleware);
 
 
 export default app;
