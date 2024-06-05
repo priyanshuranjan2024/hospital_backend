@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import fileUpload from "express-fileupload";
 import { dbConnect } from './database/dbConnect.js';
 import messageRouter from './router/messageRouter.js';
+import userRouter from "./router/userRouter.js";
 import {errorMiddleware} from "./middlewares/errorMiddleware.js";
 
 
@@ -37,6 +38,7 @@ app.use(fileUpload({
 
 //now we will import the router and use it
 app.use("/api/v1/message",messageRouter);
+app.use("/api/v1/user",userRouter);
 
 //connect to the database
 dbConnect();
