@@ -122,3 +122,47 @@ export const adminRegister = catchAsyncError(async (req, res, next) => {
     message: "Admin Registered Successfully",
   });
 });
+
+//get all the doctors
+export const getAllDoctors = catchAsyncError(async (req, res, next) => {
+  const doctors = await User.find({ role: "doctor" });
+  res.status(200).json({
+    success: true,
+    doctors,
+  });
+});
+
+//get all the users data
+export const getAllUsers = catchAsyncError(async (req, res, next) => {
+  const user = req.user;
+  res.status(200).json({
+    success: true,
+    user,
+  });
+});
+
+export const logoutAdmin = catchAsyncError(async (req, res, next) => {
+  res
+    .status(200)
+    .cookie("adminToken", "", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    })
+    .json({
+      success: true,
+      message: "Admin Logged out successfully",
+    });
+});
+
+export const logoutPatient = catchAsyncError(async (req, res, next) => {
+  res
+    .status(200)
+    .cookie("patientToken", "", {
+      httpOnly: true,
+      expires: new Date(Date.now()),
+    })
+    .json({
+      success: true,
+      message: "User Logged out successfully",
+    });
+});
