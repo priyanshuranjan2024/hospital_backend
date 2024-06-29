@@ -2,6 +2,7 @@ import { catchAsyncError } from "../middlewares/catchAsyncError.js";
 import ErrorHandler from "../middlewares/errorMiddleware.js";
 import { User } from "../models/userSchema.js";
 import { generateAccessToken } from "../utils/jwtTokens.js";
+import cloudinary from "cloudinary";
 
 export const patientRegister = catchAsyncError(async (req, res, next) => {
   const {
@@ -166,3 +167,80 @@ export const logoutPatient = catchAsyncError(async (req, res, next) => {
       message: "User Logged out successfully",
     });
 });
+
+
+export const addNewDoctor = catchAsyncError(async (req, res, next) => {
+  if (!req.files || Object.keys(req.files).length === 0) {
+    return next(new ErrorHandler("No files were uploaded", 400));
+  }
+  const { docAvatar } = req.files;
+  const allowedFormats = ["image/png", "image/jpg", "image/jpeg"];
+  if (!allowedFormats.includes(docAvatar.mimetype)) {
+    return next(new ErrorHandler("Please upload an image file", 400));
+  }
+  const {
+    firstName,
+    lastName,
+    email,
+    phone,
+    nic,
+    dob,
+    gender,
+    password,
+    doctorDepartment,
+  } = req.body;
+
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phone ||
+    !nic ||
+    !dob ||
+    !gender ||
+    !password ||
+    !doctorDepartment
+  ) {
+    return next(new ErrorHandler("Please fill all the fields", 400));
+  }
+
+  //check if the user is already registered
+  const isRegister = await User.findOne({ email});
+  if (isRegister) {
+    return next(new ErrorHandler(`${isRegister.role} already registered with this email`, 400));
+  }
+
+  //now will export the image to cloudinary
+  const cloudinaryImage=await cloudinary.uploader.upload(docAvatar.tempFilePath);
+  if(!cloudinaryImage || cloudinaryImage.error){
+    console.log(cloudinaryImage.error|| "Error in uploading image to cloudinary");
+  }
+  //now will create the user
+  const doctor=await User.create({
+    firstName,
+    lastName,
+    email,
+    phone,
+    nic,
+    dob,
+    gender,
+    password,
+    role: "doctor", 
+    docAvatar:{
+      public_id:cloudinaryImage.public_id,
+      url:cloudinaryImage.secure_url
+    },
+
+  });
+  res.status(200).json({
+    success:true,
+    message:"Doctor Registered Successfully",
+    doctor
+  });
+  
+
+
+
+  
+
+})

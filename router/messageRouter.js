@@ -1,5 +1,6 @@
 import express from 'express';
-import { sendMessage } from '../controller/messageController.js';
+import { getMessages, sendMessage } from '../controller/messageController.js';
+import {isAdminAuthenticated} from "../middlewares/auth.js";
 
 //what is router
 // The primary function of a router is to map incoming client
@@ -14,6 +15,9 @@ const messageRouter = express.Router();
 
 //now we will import the controller and give the route to the controller
 messageRouter.post("/send",sendMessage);
+
+
+messageRouter.get("/getAll",isAdminAuthenticated,getMessages);
 
 //now we will export the router and use it in the app.js
 export default messageRouter;
